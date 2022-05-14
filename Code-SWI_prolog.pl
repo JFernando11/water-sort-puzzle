@@ -414,4 +414,4 @@ solve(I1, I2, I3, I4, I5, Step, [i5toi4 | Rest]) :-
   H5 = H4,
   move(I5, I4, N5, N4),
   Nstep is Step - 1,
-  solve(I1, I2, I3, N4, N5, Nstep, Rest), !.
+  solve(I1, I2, I3, N4, N5, Nstep, Rest).
