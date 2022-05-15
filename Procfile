@@ -1,1 +1,1 @@
-web: watersort
+web: /app/swipl-heroku
