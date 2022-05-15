@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<title>Water Sort Puzzle</title>
+	<style type="text/css">
+    /* Styling Container */
+    .container {
+      text-align: center;
+    }
+
+		.game-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .button-container {
+      margin-top: 20px;
+    }
+
+    .hint-container {
+      margin-top: 20px;
+      /* width: fit-content; */
+      text-align: inherit;
+    }
+
+    /* Styling Message */
+    #message {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    /* Styling Tube */
+    .tube {
+      height: 256px;
+      width: 64px;
+      border: 1px solid black;
+      display: flex;
+      flex-direction: column;
+      justify-content: end;
+    }
+
+    .color {
+      width: 64px;
+      height: 64px;
+    }
+
+    .color.r {
+      background-color: red;
+    }
+
+    .color.g {
+      background-color: green;
+    }
+
+    .color.b {
+      background-color: blue;
+    }
+
+    .color.none {
+      background-color: white;
+    }
+
+    /* Styling Button */
+    .button {
+      width: 6em;
+      height: 2em;
+    }
+
+    .button.active {
+      background-color: greenyellow;
+      border-color: greenyellow;
+    }
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h1>Water Sort Puzzle</h1>
+
+    <div id="message">
+      Let's play the game!
+    </div>
+
+    <div class="game-container">
+      <div id="tube1" class="tube"></div>
+      <div id="tube2" class="tube"></div>
+      <div id="tube3" class="tube"></div>
+      <div id="tube4" class="tube"></div>
+      <div id="tube5" class="tube"></div>
+    </div>
+
+    <div class="button-container">
+      <button id="button-tube1" class="button" onclick="onClickTube(1)">Tube 1</button>
+      <button id="button-tube2" class="button" onclick="onClickTube(2)">Tube 2</button>
+      <button id="button-tube3" class="button" onclick="onClickTube(3)">Tube 3</button>
+      <button id="button-tube4" class="button" onclick="onClickTube(4)">Tube 4</button>
+      <button id="button-tube5" class="button" onclick="onClickTube(5)">Tube 5</button>
+    </div>
+
+    <div class="button-container">
+      <button id="button-hint" class="button" onclick="generateHint()">Get Hint</button>
+      <button id="button-restart" class="button" onclick="restartGame()">Restart</button>
+    </div>
+
+    <div id="message-hint" class="hint-container"></div>
+
+    <script>
+      const activeTube = new Set();
+      let globalTubes = [[], [], [], [], []];
+      initGame();
+
+      function initGame() {
+        fillTubeRandomly();
+        while (isSolved(globalTubes)) {
+          console.log("Try randomize water again...");
+          fillTubeRandomly();
+        }
+        showTube();
+        enableAllButton();
+      }
+
+      function fillTubeRandomly() {
+        const color = ["r", "r", "r", "r", "g", "g", "g", "g", "b", "b", "b", "b"]
+
+        for (let idxTube = 0; idxTube < 3; idxTube += 1) {
+          for (let i = 0; i < 4; i += 1) {
+            const random = Math.floor(Math.random() * (color.length - 1));
+            globalTubes[idxTube].push(color.splice(random, 1)[0]);
+          }
+        }
+      }
+
+      function showTube() {
+        const tubes = document.getElementsByClassName("tube");
+        for (let idx = 0; idx < tubes.length; idx += 1) {
+          const tube = tubes.item(idx);
+          tube.innerHTML = '';
+          if (idx > 2) continue;
+          for (let idxRow = 3; idxRow >= 0; idxRow -= 1) {
+            const waterElementDiv = document.createElement('div');
+            waterElementDiv.className = `color ${globalTubes[idx][idxRow]}`;
+            tube.appendChild(waterElementDiv);
+          }
+        }
+      }
+
+      function isSolved(tubes) {
+        for (let idx = 0; idx < tubes.length; idx += 1) {
+          const tube = tubes[idx];
+          if (tube.length > 0 && tube.length < 4) return false;
+
+          // Color check
+          const colorSet = new Set(tube);
+          if (colorSet.size > 1) return false;
+        }
+        return true;
+      }
+
+      function onClickTube(number) {
+        if (activeTube.delete(number)) {
+          // Number is already in active tube, set it as inactive
+          event.srcElement.classList.remove('active')
+          return;
+        }
+        
+        activeTube.add(number);
+        // set button as active
+        event.srcElement.classList.add('active')
+
+        if (activeTube.size === 2) {
+          // activeTube = [tubeA, tubeB] -> move water from tubeA to tubeB
+          const [tubeA, tubeB] = activeTube;
+          move(tubeA, tubeB);
+
+          // set all tube as inactive then clear activeTube
+          document.getElementById(`button-tube${tubeA}`).classList.remove('active')
+          document.getElementById(`button-tube${tubeB}`).classList.remove('active')
+          activeTube.clear();
+
+          // check is solved
+          if (isSolved(globalTubes)) {
+            disableAllButtonExceptRestart();
+            document.getElementById('message').innerText = `Yeayy you did it!`
+          }
+        }
+      }
+
+      function move(tubeA, tubeB) {
+        const elementTubeA = document.getElementById(`tube${tubeA}`);
+        const elementTubeB = document.getElementById(`tube${tubeB}`);
+
+        const countA = elementTubeA.childElementCount;
+        const countB = elementTubeB.childElementCount;
+
+        if (countA === 0 || countB === 4) {
+          document.getElementById('message').innerText = "Invalid move!"
+          return;
+        }
+
+        document.getElementById('message').innerText = `Move water from tube ${tubeA} to tube ${tubeB}`
+        elementTubeB.insertBefore(elementTubeA.children[0], elementTubeB.children[0])
+        const waterA = globalTubes[tubeA - 1].pop();
+        globalTubes[tubeB - 1].push(waterA);
+      }
+
+      function disableAllButtonExceptRestart() {
+        document.querySelectorAll('.button').forEach(button => {
+          if (button.id === 'button-restart') return;
+          button.disabled = true;
+        });
+      }
+
+      function enableAllButton() {
+        document.querySelectorAll('.button').forEach(button => {
+          button.disabled = false;
+        });
+      }
+
+      async function generateHint() {
+        const tube1 = Array.from(globalTubes[0]).reverse().join(':');
+        const tube2 = Array.from(globalTubes[1]).reverse().join(':');
+        const tube3 = Array.from(globalTubes[2]).reverse().join(':');
+        const tube4 = Array.from(globalTubes[3]).reverse().join(':');
+        const tube5 = Array.from(globalTubes[4]).reverse().join(':');
+        const response = await fetch(`hint?tube1=${tube1}&tube2=${tube2}&tube3=${tube3}&tube4=${tube4}&tube5=${tube5}`);
+        
+        const { hint } = await response.json();
+        let result = "<h2>Hint:</h2>";
+        hint.split(',').forEach((item, idx) => {
+          const tubeA = item.charAt(1);
+          const tubeB = item.charAt(5);
+          result += `<p>${idx + 1}. Tube ${tubeA} -> Tube ${tubeB}</p>`;
+        })
+        document.getElementById('message-hint').innerHTML = result;
+      }
+
+      function restartGame() {
+        activeTube.clear();
+        globalTubes = [[], [], [], [], []];
+        initGame();
+        document.getElementById('message-hint').innerHTML = '';
+        document.getElementById('message').innerText = "Restart Game Done! Let's play the game";
+      }
+    </script>
+</body>
+
+</html>
