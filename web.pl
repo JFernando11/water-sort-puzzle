@@ -3,7 +3,7 @@
 :- use_module(library(http/json_convert)).
 
 :- include('Code-SWI_prolog.pl').
-:- initialization(server(5151)).
+:- initialization(server(5151), program).
 
 % Register handler for HTTP request
 :- http_handler('/', index, []).
