@@ -1,18 +1,18 @@
 move(Tabung1, Tabung2, Hasil1, Hasil2) :-
-    Tabung1 = [Head1 | Hasil1],
-    Hasil2 = [Head1 | Tabung2].
+  Tabung1 = [Head1 | Hasil1],
+  Hasil2 = [Head1 | Tabung2].
 
 checker([]).
 
 checker([A, B, C, D]) :-
-    A = B, B = C, C = D.
+  A = B, B = C, C = D.
 
 checker(I1, I2, I3, I4, I5) :-
-    checker(I1),
-    checker(I2),
-    checker(I3),
-    checker(I4),
-    checker(I5).
+  checker(I1),
+  checker(I2),
+  checker(I3),
+  checker(I4),
+  checker(I5).
 
 solve(I1, I2, I3, I4, I5, _, []) :- checker(I1, I2, I3, I4, I5), !.
 
