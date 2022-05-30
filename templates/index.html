@@ -201,7 +201,7 @@
         }
 
         if (countA > 0 && countB > 0) {
-          if (elementTubeA.children[0] !== elementTubeB.children[0]) {
+          if (globalTubes[tubeA - 1][countA - 1] !== globalTubes[tubeB - 1][countB - 1]) {
             document.getElementById('message').innerText = "Invalid move!"
             return;
           }
