@@ -36,7 +36,7 @@ get_hint(Request) :-
   convert_param(Tube3, I3),
   convert_param(Tube4, I4),
   convert_param(Tube5, I5),
-  call_solve(I1, I2, I3, I4, I5, 15, Result), !,
+  call_solve(I1, I2, I3, I4, I5, 13, Result), !,
   atomic_list_concat(Result, ',', AResult),
   atom_string(AResult, SResult),
   prolog_to_json(hint(SResult), JSON),
